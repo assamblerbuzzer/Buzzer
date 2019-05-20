@@ -1,13 +1,61 @@
 BuzzerProjekt                                                                                                           PAGE 1
-                         1     start:
-****WARNING:Noinstructionfoundataddress0x00.ConsiderusageofappropriateORGdirectivetoclarifycorrectcodeplacement.
-                         2
-                         3     END
-ASSEMBLY COMPLETE, NO ERRORS FOUND, 1 WARNING
+                         1     cseg at 0x0000
+0000 020030              2     JMP MAIN
+                         3
+                         4     cseg at 0x0003
+                         5     isr0:
+0003 BF0158              6        cjne R7,#1,sieg2
+0006 020059              7        jmp sieg1
+                         8        ;reti
+                         9
+                        10     cseg at 0x000B
+                        11     timer:
+000B C28C               12       clr Tr0
+000D 7F01               13       mov R7, #1
+000F C2A4               14       clr P2.4
+0011 32                 15       reti
+                        16
+                        17     cseg at 0x0013
+                        18     isr1:
+0013 BF0143             19       cjne R7,#1,sieg1
+0016 02005E             20       jmp sieg2
+                        21
+                        22     cseg at 0x0030
+                        23     main:
+0030 758170             24       mov SP,#0x70
+0033 75A0FF             25       mov P2,#0xFF
+0036 C288               26       clr it0
+0038 C28A               27       clr it1
+003A D2A8               28       SETB EX0
+003C D2AA               29       SETB EX1
+003E C2A4               30       clr P2.4
+0040 D2A4               31       setb P2.4
+0042 79FF               32       MOV R1, #0xFF
+0044 020047             33       jmp time
+                        34
+                        35     time:
+0047 851189             36       mov TMOD, 0x11;
+004A 758CFD             37       mov TH0, #0xFD;(65536 - 100)%256;  // für Startwert
+004D 758A70             38       mov TL0, #0x70;(65536 - 100)%256;  // für Startwert
+0050 D2A9               39       setb ET0    ;// Interrupt für Timer 0 aktivieren
+0052 D28C               40       setb TR0 ;    // Timer 0 starten  - TR1 für Timer 1
+0054 D2AF               41       setb EA ;    // Globalen Interrupt aktivieren -- ab jetzt geht's rund
+0056 020063             42       jmp loop
+                        43
+                        44     sieg1:
+0059 C2A0               45       clr P2.0
+005B 020063             46       jmp loop
+                        47
+                        48     sieg2:
+005E C2A1               49       clr P2.1
+0060 020063             50       jmp loop
+                        51
+                        52     loop:
+0063 00                 53       nop
+0064 80FD               54       jmp loop
+                        55     END
+ASSEMBLY COMPLETE, NO ERRORS FOUND, NO WARNINGS
 
-
-ERROR SUMMARY:
-Line 1, WARNING:Noinstructionfoundataddress0x00.ConsiderusageofappropriateORGdirectivetoclarifycorrectcodeplacement.
 
 SYMBOL TABLE:
 ??MCU_8051_IDE . . . . . . . . . . .  N  NUMB  8051H  NOT USED
@@ -69,15 +117,15 @@ DP1H . . . . . . . . . . . . . . . .  D  ADDR  0085H  NOT USED
 DP1L . . . . . . . . . . . . . . . .  D  ADDR  0084H  NOT USED
 DPH. . . . . . . . . . . . . . . . .  D  ADDR  0083H  NOT USED
 DPL. . . . . . . . . . . . . . . . .  D  ADDR  0082H  NOT USED
-EA . . . . . . . . . . . . . . . . .  B  ADDR  00AFH  NOT USED
+EA . . . . . . . . . . . . . . . . .  B  ADDR  00AFH
 EC . . . . . . . . . . . . . . . . .  B  ADDR  00AEH  NOT USED
 EECON. . . . . . . . . . . . . . . .  D  ADDR  0096H  NOT USED
 ES . . . . . . . . . . . . . . . . .  B  ADDR  00ACH  NOT USED
-ET0. . . . . . . . . . . . . . . . .  B  ADDR  00A9H  NOT USED
+ET0. . . . . . . . . . . . . . . . .  B  ADDR  00A9H
 ET1. . . . . . . . . . . . . . . . .  B  ADDR  00ABH  NOT USED
 ET2. . . . . . . . . . . . . . . . .  B  ADDR  00ADH  NOT USED
-EX0. . . . . . . . . . . . . . . . .  B  ADDR  00A8H  NOT USED
-EX1. . . . . . . . . . . . . . . . .  B  ADDR  00AAH  NOT USED
+EX0. . . . . . . . . . . . . . . . .  B  ADDR  00A8H
+EX1. . . . . . . . . . . . . . . . .  B  ADDR  00AAH
 EXEN2. . . . . . . . . . . . . . . .  B  ADDR  00CBH  NOT USED
 EXF2 . . . . . . . . . . . . . . . .  B  ADDR  00CEH  NOT USED
 EXTI0. . . . . . . . . . . . . . . .  C  ADDR  0003H  NOT USED
@@ -95,11 +143,15 @@ IPH0 . . . . . . . . . . . . . . . .  D  ADDR  00B7H  NOT USED
 IPH1 . . . . . . . . . . . . . . . .  D  ADDR  00B3H  NOT USED
 IPL0 . . . . . . . . . . . . . . . .  D  ADDR  00B8H  NOT USED
 IPL1 . . . . . . . . . . . . . . . .  D  ADDR  00B2H  NOT USED
-IT0. . . . . . . . . . . . . . . . .  B  ADDR  0088H  NOT USED
-IT1. . . . . . . . . . . . . . . . .  B  ADDR  008AH  NOT USED
+ISR0 . . . . . . . . . . . . . . . .  C  ADDR  0003H  NOT USED
+ISR1 . . . . . . . . . . . . . . . .  C  ADDR  0013H  NOT USED
+IT0. . . . . . . . . . . . . . . . .  B  ADDR  0088H
+IT1. . . . . . . . . . . . . . . . .  B  ADDR  008AH
 KBE. . . . . . . . . . . . . . . . .  D  ADDR  009DH  NOT USED
 KBF. . . . . . . . . . . . . . . . .  D  ADDR  009EH  NOT USED
 KBLS . . . . . . . . . . . . . . . .  D  ADDR  009CH  NOT USED
+LOOP . . . . . . . . . . . . . . . .  C  ADDR  0063H
+MAIN . . . . . . . . . . . . . . . .  C  ADDR  0030H
 OSCCON . . . . . . . . . . . . . . .  D  ADDR  0086H  NOT USED
 OV . . . . . . . . . . . . . . . . .  B  ADDR  00D2H  NOT USED
 P. . . . . . . . . . . . . . . . . .  B  ADDR  00D0H  NOT USED
@@ -107,7 +159,7 @@ P0 . . . . . . . . . . . . . . . . .  D  ADDR  0080H  NOT USED
 P1 . . . . . . . . . . . . . . . . .  D  ADDR  0090H  NOT USED
 P1M1 . . . . . . . . . . . . . . . .  D  ADDR  00D4H  NOT USED
 P1M2 . . . . . . . . . . . . . . . .  D  ADDR  00E2H  NOT USED
-P2 . . . . . . . . . . . . . . . . .  D  ADDR  00A0H  NOT USED
+P2 . . . . . . . . . . . . . . . . .  D  ADDR  00A0H
 P3 . . . . . . . . . . . . . . . . .  D  ADDR  00B0H  NOT USED
 P3M1 . . . . . . . . . . . . . . . .  D  ADDR  00D5H  NOT USED
 P3M2 . . . . . . . . . . . . . . . .  D  ADDR  00E3H  NOT USED
@@ -150,18 +202,19 @@ SADEN_0. . . . . . . . . . . . . . .  D  ADDR  00B9H  NOT USED
 SADEN_1. . . . . . . . . . . . . . .  D  ADDR  00BAH  NOT USED
 SBUF . . . . . . . . . . . . . . . .  D  ADDR  0099H  NOT USED
 SCON . . . . . . . . . . . . . . . .  D  ADDR  0098H  NOT USED
+SIEG1. . . . . . . . . . . . . . . .  C  ADDR  0059H
+SIEG2. . . . . . . . . . . . . . . .  C  ADDR  005EH
 SINT . . . . . . . . . . . . . . . .  C  ADDR  0023H  NOT USED
 SM0. . . . . . . . . . . . . . . . .  B  ADDR  009FH  NOT USED
 SM1. . . . . . . . . . . . . . . . .  B  ADDR  009EH  NOT USED
 SM2. . . . . . . . . . . . . . . . .  B  ADDR  009DH  NOT USED
-SP . . . . . . . . . . . . . . . . .  D  ADDR  0081H  NOT USED
+SP . . . . . . . . . . . . . . . . .  D  ADDR  0081H
 SPCON. . . . . . . . . . . . . . . .  D  ADDR  00C3H  NOT USED
 SPCR . . . . . . . . . . . . . . . .  D  ADDR  00D5H  NOT USED
 SPDAT. . . . . . . . . . . . . . . .  D  ADDR  00C5H  NOT USED
 SPDR . . . . . . . . . . . . . . . .  D  ADDR  0086H  NOT USED
 SPSR . . . . . . . . . . . . . . . .  D  ADDR  00AAH  NOT USED
 SPSTA. . . . . . . . . . . . . . . .  D  ADDR  00C4H  NOT USED
-START. . . . . . . . . . . . . . . .  C  ADDR  0000H  NOT USED
 T0 . . . . . . . . . . . . . . . . .  B  ADDR  00B4H  NOT USED
 T1 . . . . . . . . . . . . . . . . .  B  ADDR  00B5H  NOT USED
 T2CON. . . . . . . . . . . . . . . .  D  ADDR  00C8H  NOT USED
@@ -172,18 +225,20 @@ TCON . . . . . . . . . . . . . . . .  D  ADDR  0088H  NOT USED
 TF0. . . . . . . . . . . . . . . . .  B  ADDR  008DH  NOT USED
 TF1. . . . . . . . . . . . . . . . .  B  ADDR  008FH  NOT USED
 TF2. . . . . . . . . . . . . . . . .  B  ADDR  00CFH  NOT USED
-TH0. . . . . . . . . . . . . . . . .  D  ADDR  008CH  NOT USED
+TH0. . . . . . . . . . . . . . . . .  D  ADDR  008CH
 TH1. . . . . . . . . . . . . . . . .  D  ADDR  008DH  NOT USED
 TH2. . . . . . . . . . . . . . . . .  D  ADDR  00CDH  NOT USED
 TI . . . . . . . . . . . . . . . . .  B  ADDR  0099H  NOT USED
+TIME . . . . . . . . . . . . . . . .  C  ADDR  0047H
+TIMER. . . . . . . . . . . . . . . .  C  ADDR  000BH  NOT USED
 TIMER0 . . . . . . . . . . . . . . .  C  ADDR  000BH  NOT USED
 TIMER1 . . . . . . . . . . . . . . .  C  ADDR  001BH  NOT USED
 TIMER2 . . . . . . . . . . . . . . .  C  ADDR  002BH  NOT USED
-TL0. . . . . . . . . . . . . . . . .  D  ADDR  008AH  NOT USED
+TL0. . . . . . . . . . . . . . . . .  D  ADDR  008AH
 TL1. . . . . . . . . . . . . . . . .  D  ADDR  008BH  NOT USED
 TL2. . . . . . . . . . . . . . . . .  D  ADDR  00CCH  NOT USED
-TMOD . . . . . . . . . . . . . . . .  D  ADDR  0089H  NOT USED
-TR0. . . . . . . . . . . . . . . . .  B  ADDR  008CH  NOT USED
+TMOD . . . . . . . . . . . . . . . .  D  ADDR  0089H
+TR0. . . . . . . . . . . . . . . . .  B  ADDR  008CH
 TR1. . . . . . . . . . . . . . . . .  B  ADDR  008EH  NOT USED
 TR2. . . . . . . . . . . . . . . . .  B  ADDR  00CAH  NOT USED
 TXD. . . . . . . . . . . . . . . . .  B  ADDR  00B1H  NOT USED
